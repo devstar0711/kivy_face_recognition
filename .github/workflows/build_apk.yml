@@ -29,9 +29,6 @@ jobs:
         with:
           python-version: '3.10'
           architecture: x64
-    
-      - name: Get Branch Name
-        run: echo "BRANCH=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
   
       - name: Update package list
         run: sudo apt-get update
@@ -78,11 +75,20 @@ jobs:
             uuid-dev \
             libssl-dev
 
-      - name: Get Version
-        run: echo "APP_VERSION=0.0.${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          command: buildozer android debug
+          buildozer_version: master
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: package
+          path: ${{ steps.buildozer.outputs.filename }}
 
       - name: Build APK with debug mode enabled
-        id: debugapk
         if: ${{ env.BRANCH == 'develop' }}
         run: buildozer -v android debug
         
@@ -112,7 +118,6 @@ jobs:
             To be changed
             # This is a Debug APK.
           files: KivyCamera-${{ env.APP_VERSION }}-arm64-v8a-debug.apk
-          path: ${{ steps.debugapk.outputs.filename }}
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
