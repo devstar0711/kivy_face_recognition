@@ -1,0 +1,129 @@
+#WindowManager because we have multiple pages.
+WindowManager:
+
+    MainPage:
+        name: 'main'
+        id: main
+
+    SettingsPage:
+        name: 'settings'
+        id: settings
+
+#MainPage contains the shutterbutton and image viewfinder/preview.
+<MainPage>:
+
+    #An empty canvas will be used to stretch the image frame on the whole screen
+    #Note the self.texture argument, which is referencing the previously in the class created texture
+    #to display the image.
+    canvas:
+        Color:
+            rgba: (255/255, 255/255, 255/255, 255/255)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+            texture: self.texture
+
+    RelativeLayout:
+
+        orientation: 'vertical'
+
+        #Shutter Button. Will call the function captureImage() of Class MainPage.
+        Button:
+            id: saveImgBtn
+            text: 'Save Image'
+            background_normal: ''
+            background_color: (0, 0, 0, 0)
+            canvas:
+                Color:
+                    rgba: (140/255, 0, 0, 140/255) if self.state == 'normal' else (0, 100/255, 0, 140/255)
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [20]
+            size_hint: (0.1, 0.1)
+            pos_hint: {'center_x':0.5, 'center_y':0.2}
+            on_press:
+                root.captureImage()
+
+        Button:
+            id: switchLens
+            text: 'Switch'
+            background_normal: ''
+            background_color: (0, 0, 0, 0)
+            canvas:
+                Color:
+                    rgba: (140/255, 0, 0, 140/255) if self.state == 'normal' else (0, 100/255, 0, 140/255)
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [100]
+            size_hint: (0.05, 0.05)
+            pos_hint: {'center_x':0.7, 'center_y':0.2}
+            on_press:
+                root.switchLens()
+
+        Button:
+            text: ''
+            background_normal: 'img/settings_cog.png'
+            background_down: 'img/settings_cog.png'
+            size_hint: (0.1, 0.1)
+            pos_hint: {'center_x': 0.05, 'center_y': 0.95}
+            on_press:
+                app.root.current = 'settings'
+                root.manager.transition.direction = 'left'
+
+#SettingsPage contains the user changable settings.
+<SettingsPage>:
+
+    #The background will be white
+    canvas:
+        Color:
+            rgba: (255/255, 255/255, 255/255, 255/255)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    #Settings icon/cog in the upper left corner will read all settings if it is pressed by the user.
+    #Afterwards, it will transition back to the mainpage containing the viewfinder
+    RelativeLayout:
+        orientation: 'vertical'
+        Button:
+            text: ''
+            background_normal: 'img/settings_cog.png'
+            background_down: 'img/settings_cog.png'
+            size_hint: (0.1, 0.1)
+            pos_hint: {'center_x': 0.05, 'center_y': 0.95}
+            on_press:
+                root.setSettings()
+                app.root.current = 'main'
+                root.manager.transition.direction = 'right'
+
+    #Note: The GridLayout here has multiple rows and two columns. The cells will be filled from left to right,
+    #once a new row begins, it starts again from left to right. So the 3rd Label/Textfield will be in the
+    #Second row in the first cell if the table has two columns
+    GridLayout:
+        rows: 5
+        cols: 2
+        row_force_default: True
+        row_default_height: 30
+        Label:
+            text: ''
+        Label:
+            text: ''
+        Label:
+            text: ''
+        Label:
+            text: ''
+        Label:
+            text: 'JPEG Quality (in %)'
+            color: (0, 0, 0, 1)
+            font_size: 16
+        TextInput:
+            id: imageQuality
+            text: ''
+            multiline: False
+            font_size: 16
+            input_filter: 'int' #Only allow integer numbers as input.
+
+
+
