@@ -82,6 +82,7 @@ jobs:
         run: echo "APP_VERSION=0.0.${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
 
       - name: Build APK with debug mode enabled
+        id: debugapk
         if: ${{ env.BRANCH == 'develop' }}
         run: buildozer -v android debug
         
@@ -111,6 +112,7 @@ jobs:
             To be changed
             # This is a Debug APK.
           files: KivyCamera-${{ env.APP_VERSION }}-arm64-v8a-debug.apk
+          path: ${{ steps.debugapk.outputs.filename }}
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
